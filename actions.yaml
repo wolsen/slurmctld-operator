@@ -1,0 +1,69 @@
+show-current-config:
+  description: >
+    Display the currently used `slurm.conf`.
+
+    Note: This file only exists in `slurmctld` charm and is automatically
+    distributed to all compute nodes by Slurm.
+
+    Example usage:
+    $ juju run-action slurmctld/leader --format=json --wait | jq .[].results.slurm.conf | xargs -I % -0 python3 -c 'print(%)'
+drain:
+  description: >
+    Drain specified nodes.
+
+    Example usage:
+    $ juju run-action slurmctld/leader drain nodename=node-[1,2] reason="Updating kernel"
+  params:
+    nodename:
+      type: string
+      description: The nodes to drain, using the Slurm format, e.g. `node-[1,2]`.
+    reason:
+      type: string
+      description: Reason to drain the nodes.
+  required:
+    - nodename
+    - reason
+resume:
+  description: >
+    Resume specified nodes.
+
+    Note: Newly added nodes will remain in the `down` state until configured,
+    with the `node-configured` action.
+
+    Example usage: $ juju run-action slurmctld/leader resume nodename=node-[1,2]
+  params:
+    nodename:
+      type: string
+      description: >
+        The nodes to resume, using the Slurm format, e.g. `node-[1,2]`.
+  required:
+    - nodename
+
+influxdb-info:
+  description: >
+    Get InfluxDB info.
+
+    This action returns the host, port, username, password, database, and
+    retention policy regarding to InfluxDB.
+
+etcd-get-root-password:
+  description: >
+    Get the password for the etcd root account.
+etcd-get-slurmd-password:
+  description: >
+    Get the password for the etcd slurmd account.
+
+etcd-create-munge-account:
+  description: >
+    Create a new etcd account to be able to query the munge key.
+
+  params:
+    user:
+      type: string
+      description: Desired username
+    password:
+      type: string
+      description: Desired account password
+  required:
+    - user
+    - password
