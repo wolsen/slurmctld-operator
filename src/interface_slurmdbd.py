@@ -5,7 +5,6 @@ import logging
 
 from ops.framework import EventBase, EventSource, Object, ObjectEvents
 
-
 logger = logging.getLogger()
 
 
@@ -74,7 +73,9 @@ class Slurmdbd(Object):
         jwt_rsa = self._charm.get_jwt_rsa()
         event.relation.data[self.model.app]["jwt_rsa"] = jwt_rsa
 
-        event.relation.data[self.model.app]["cluster-name"] = self._charm.config.get("cluster-name")
+        event.relation.data[self.model.app]["cluster-name"] = self._charm.config.get(
+            "cluster-name"
+        )
 
     def _on_relation_changed(self, event):
         event_app_data = event.relation.data.get(event.app)

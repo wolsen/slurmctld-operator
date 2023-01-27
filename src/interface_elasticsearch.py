@@ -17,6 +17,7 @@ class ElasticsearchUnAvailableEvent(EventBase):
 
 class ElasticsearchEvents(ObjectEvents):
     """ElasticsearchEvents."""
+
     elasticsearch_available = EventSource(ElasticsearchAvailableEvent)
     elasticsearch_unavailable = EventSource(ElasticsearchUnAvailableEvent)
 
@@ -33,14 +34,15 @@ class Elasticsearch(Object):
         self._charm = charm
         self._relation_name = relation_name
 
-        self._stored.set_default(elasticsearch_host=str(),
-                                 elasticsearch_port=str())
+        self._stored.set_default(elasticsearch_host=str(), elasticsearch_port=str())
 
-        self.framework.observe(self._charm.on[self._relation_name].relation_changed,
-                               self._on_relation_changed)
+        self.framework.observe(
+            self._charm.on[self._relation_name].relation_changed, self._on_relation_changed
+        )
 
-        self.framework.observe(self._charm.on[self._relation_name].relation_broken,
-                               self._on_relation_broken)
+        self.framework.observe(
+            self._charm.on[self._relation_name].relation_broken, self._on_relation_broken
+        )
 
     def _on_relation_changed(self, event):
         """Get server address and store it."""

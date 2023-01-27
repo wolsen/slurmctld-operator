@@ -6,8 +6,7 @@ import secrets
 import string
 
 import influxdb
-from ops.framework import EventBase, EventSource, Object, ObjectEvents, \
-                          StoredState
+from ops.framework import EventBase, EventSource, Object, ObjectEvents, StoredState
 
 logger = logging.getLogger()
 
@@ -30,7 +29,7 @@ class InfluxDBEvents(ObjectEvents):
 def generate_password(length=20):
     """Generate a random password."""
     alphabet = string.ascii_letters + string.digits
-    return ''.join(secrets.choice(alphabet) for _ in range(length))
+    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
 class InfluxDB(Object):
@@ -74,10 +73,12 @@ class InfluxDB(Object):
                 password = event.relation.data[event.unit].get("password")
 
                 if all([ingress, port, user, password]):
-                    admin_info = {"ingress": ingress,
-                                  "port": port,
-                                  "user": user,
-                                  "password": password}
+                    admin_info = {
+                        "ingress": ingress,
+                        "port": port,
+                        "user": user,
+                        "password": password,
+                    }
                     self._stored.influxdb_admin_info = json.dumps(admin_info)
 
                     # Influxdb client
@@ -91,17 +92,16 @@ class InfluxDB(Object):
                     logger.debug(f"## users in influxdb: {users}")
                     if self._INFLUX_USER not in users:
                         logger.debug(f"## Creating influxdb user: {self._INFLUX_USER}")
-                        client.create_user(self._INFLUX_USER,
-                                           influx_slurm_password)
+                        client.create_user(self._INFLUX_USER, influx_slurm_password)
 
                     databases = [db["name"] for db in client.get_list_database()]
                     if self._INFLUX_DATABASE not in databases:
                         logger.debug(f"## Creating influxdb db: {self._INFLUX_DATABASE}")
                         client.create_database(self._INFLUX_DATABASE)
 
-                    client.grant_privilege(self._INFLUX_PRIVILEGE,
-                                           self._INFLUX_DATABASE,
-                                           self._INFLUX_USER)
+                    client.grant_privilege(
+                        self._INFLUX_PRIVILEGE, self._INFLUX_DATABASE, self._INFLUX_USER
+                    )
 
                     # select default retention policy
                     policies = client.get_list_retention_policies(self._INFLUX_DATABASE)
@@ -111,12 +111,14 @@ class InfluxDB(Object):
                             policy = p["name"]
 
                     # Dump influxdb_info to json and set it to state
-                    influxdb_info = {"ingress": ingress,
-                                     "port": port,
-                                     "user": self._INFLUX_USER,
-                                     "password": influx_slurm_password,
-                                     "database": self._INFLUX_DATABASE,
-                                     "retention_policy": policy}
+                    influxdb_info = {
+                        "ingress": ingress,
+                        "port": port,
+                        "user": self._INFLUX_USER,
+                        "password": influx_slurm_password,
+                        "database": self._INFLUX_DATABASE,
+                        "retention_policy": policy,
+                    }
                     self._stored.influxdb_info = json.dumps(influxdb_info)
                     self.on.influxdb_available.emit()
 
@@ -126,10 +128,12 @@ class InfluxDB(Object):
             if self._stored.influxdb_admin_info:
                 influxdb_admin_info = json.loads(self._stored.influxdb_admin_info)
 
-                client = influxdb.InfluxDBClient(influxdb_admin_info["ingress"],
-                                                 influxdb_admin_info["port"],
-                                                 influxdb_admin_info["user"],
-                                                 influxdb_admin_info["password"])
+                client = influxdb.InfluxDBClient(
+                    influxdb_admin_info["ingress"],
+                    influxdb_admin_info["port"],
+                    influxdb_admin_info["user"],
+                    influxdb_admin_info["password"],
+                )
 
                 databases = [db["name"] for db in client.get_list_database()]
                 if self._INFLUX_DATABASE in databases:

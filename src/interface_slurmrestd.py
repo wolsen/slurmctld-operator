@@ -10,11 +10,11 @@ logger = logging.getLogger()
 
 
 class SlurmrestdAvailableEvent(EventBase):
-    """Emmited when slurmrestd is available."""
+    """Emitted when slurmrestd is available."""
 
 
 class SlurmrestdUnAvailableEvent(EventBase):
-    """Emmited when the slurmrestd relation is broken."""
+    """Emitted when the slurmrestd relation is broken."""
 
 
 class SlurmrestdEvents(ObjectEvents):
@@ -37,12 +37,10 @@ class Slurmrestd(Object):
         self._relation_name = relation_name
 
         self.framework.observe(
-            self._charm.on[relation_name].relation_created,
-            self._on_relation_created
+            self._charm.on[relation_name].relation_created, self._on_relation_created
         )
         self.framework.observe(
-            self._charm.on[relation_name].relation_broken,
-            self._on_relation_broken
+            self._charm.on[relation_name].relation_broken, self._on_relation_broken
         )
 
     @property

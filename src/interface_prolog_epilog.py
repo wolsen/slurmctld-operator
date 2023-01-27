@@ -8,11 +8,11 @@ logger = logging.getLogger()
 
 
 class PrologEpilogAvailableEvent(EventBase):
-    """Emmited when the prolog and epilog are available."""
+    """Emitted when the prolog and epilog are available."""
 
 
 class PrologEpilogUnavailableEvent(EventBase):
-    """Emmited when the prolog and epilog are unavailable."""
+    """Emitted when the prolog and epilog are unavailable."""
 
 
 class SlurmPrologEpilogEvents(ObjectEvents):
@@ -35,10 +35,12 @@ class PrologEpilog(Object):
         self._charm = charm
         self._stored.set_default(prolog_epilog=str())
 
-        self.framework.observe(self._charm.on[relation_name].relation_changed,
-                               self._on_relation_changed)
-        self.framework.observe(self._charm.on[relation_name].relation_broken,
-                               self._on_relation_broken)
+        self.framework.observe(
+            self._charm.on[relation_name].relation_changed, self._on_relation_changed
+        )
+        self.framework.observe(
+            self._charm.on[relation_name].relation_broken, self._on_relation_broken
+        )
 
     def _on_relation_changed(self, event):
         """Get the paths for the scripts and emit prolog_epilog_available."""
@@ -52,8 +54,9 @@ class PrologEpilog(Object):
             logger.warning("## Missing one prolog or epilog. Deferring.")
             return
 
-        self._stored.prolog_epilog = json.dumps({"slurmctld_epilog_path": epilog,
-                                                 "slurmctld_prolog_path": prolog})
+        self._stored.prolog_epilog = json.dumps(
+            {"slurmctld_epilog_path": epilog, "slurmctld_prolog_path": prolog}
+        )
 
         self.on.prolog_epilog_available.emit()
 

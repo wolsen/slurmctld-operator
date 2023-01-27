@@ -16,13 +16,12 @@
 """Test default charm events such as upgrade charm, install, etc."""
 
 import unittest
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock, patch
 
 import ops.testing
+from charm import SlurmctldCharm
 from ops.model import BlockedStatus
 from ops.testing import Harness
-
-from charm import SlurmctldCharm
 
 ops.testing.SIMULATE_CAN_CONNECT = True
 
@@ -152,7 +151,7 @@ class TestCharm(unittest.TestCase):
     @patch("pathlib.Path.read_text", return_value="v1.0.0")
     @patch("charm.SlurmctldCharm._configure_etcd")
     def test_on_upgrade(self, *_) -> None:
-        """Test that the on_upgrade method works,"""
+        """Test that the on_upgrade method works,."""
         self.harness.charm.on.upgrade_charm.emit()
         self.assertEqual(self.harness.get_workload_version(), "v1.0.0")
 
@@ -221,7 +220,7 @@ class TestCharm(unittest.TestCase):
         self.harness.charm._slurmrestd.on.slurmrestd_available.emit()
         self.assertEqual(
             self.harness.charm.unit.status,
-            BlockedStatus("Cannot generate slurm_config - defering event."),
+            BlockedStatus("Cannot generate slurm_config - deferring event."),
         )
 
     @patch("charm.SlurmctldCharm._check_status", return_value=True)
