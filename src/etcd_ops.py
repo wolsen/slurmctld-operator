@@ -6,14 +6,13 @@ import shlex
 import shutil
 import subprocess
 import tarfile
-from tempfile import TemporaryDirectory
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import List
 
 from jinja2 import Environment, FileSystemLoader
-from slurm_ops_manager.utils import operating_system
-
 from omnietcd3 import Etcd3AuthClient
+from slurm_ops_manager.utils import operating_system
 
 logger = logging.getLogger()
 
@@ -30,7 +29,7 @@ class EtcdOps:
         self._etcd_group = "etcd"
         self._etcd_service = "etcd.service"
 
-        if operating_system() == 'ubuntu':
+        if operating_system() == "ubuntu":
             self._etcd_environment_file = Path("/etc/default/etcd")
         else:
             self._etcd_environment_file = Path("/etc/sysconfig/etcd")
@@ -45,7 +44,7 @@ class EtcdOps:
         # extract resource tarball
         with TemporaryDirectory(prefix="omni") as tmp_dir:
             logger.debug(f"## extracting {resource_path} to {tmp_dir}")
-            with tarfile.open(resource_path, 'r') as tar:
+            with tarfile.open(resource_path, "r") as tar:
                 tar.extractall(path=tmp_dir)
 
             usrbin = Path("/usr/bin")
@@ -68,12 +67,16 @@ class EtcdOps:
         cmd = f"groupadd {self._etcd_group}"
         subprocess.call(shlex.split(cmd))
 
-        subprocess.call(["useradd",
-                         "--system",
-                         "--no-create-home",
-                         f"--gid={self._etcd_group}",
-                         "--shell=/usr/sbin/nologin",
-                         self._etcd_user])
+        subprocess.call(
+            [
+                "useradd",
+                "--system",
+                "--no-create-home",
+                f"--gid={self._etcd_group}",
+                "--shell=/usr/sbin/nologin",
+                self._etcd_user,
+            ]
+        )
 
     def _setup_systemd(self):
         logger.debug("## creating systemd files for etcd")
@@ -90,28 +93,28 @@ class EtcdOps:
         subprocess.call(["systemctl", "daemon-reload"])
 
     def _setup_environment_file(self):
-        logger.debug("## creating environemnt file for etcd")
+        logger.debug("## creating environment file for etcd")
         template_dir = Path(__file__).parent / "templates"
         environment = Environment(loader=FileSystemLoader(template_dir))
 
         template = environment.get_template("etcd.env.tmpl")
 
         if self._charm._stored.use_tls:
-            ctxt = {"use_tls": True,
-                    "protocol": "https",
-                    "tls_key_path": self._tls_key_path,
-                    "tls_cert_path": self._tls_crt_path,
-                    }
+            ctxt = {
+                "use_tls": True,
+                "protocol": "https",
+                "tls_key_path": self._tls_key_path,
+                "tls_cert_path": self._tls_crt_path,
+            }
             if self._charm._stored.use_tls_ca:
                 ctxt["ca_cert_path"] = self._tls_ca_crt_path
         else:
-            ctxt = {"use_tls": False,
-                    "protocol": "http"}
+            ctxt = {"use_tls": False, "protocol": "http"}
 
         self._etcd_environment_file.write_text(template.render(ctxt))
 
     def setup_tls(self):
-        """Setup the files for TLS."""
+        """Set up the files for TLS."""
         logger.debug("## setting tls files for etcd")
 
         # safeguard
@@ -168,9 +171,9 @@ class EtcdOps:
         try:
             cmd = f"systemctl is-active {self._etcd_service}"
             r = subprocess.check_output(shlex.split(cmd))
-            return 'active' == r.decode().strip().lower()
+            return "active" == r.decode().strip().lower()
         except subprocess.CalledProcessError as e:
-            logger.error(f'## Could not check etcd: {e}')
+            logger.error(f"## Could not check etcd: {e}")
             return False
 
     def configure(self, root_pass: str, slurmd_pass: str) -> None:
@@ -197,27 +200,24 @@ class EtcdOps:
             - has r permissions for munge/* keys
         """
         logger.debug("## creating default etcd roles/users")
-        cmds = [# create root account
-                f"etcdctl user add root:{root_pass}",
-                # create root role
-                "etcdctl role add root",
-                "etcdctl user grant-role root root",
-
-                # create slurmd user
-                f"etcdctl user add slurmd:{slurmd_pass}",
-                # create slurmd role
-                "etcdctl role add slurmd",
-                "etcdctl role grant-permission slurmd readwrite --prefix=true nodes/",
-                # grant slurmd user the slurmd role
-                "etcdctl user grant-role slurmd slurmd",
-
-                # create munge role
-                "etcdctl role add munge-readers",
-                "etcdctl role grant-permission munge-readers read --prefix=true munge/",
-
-                # enable auth
-                "etcdctl auth enable",
-               ]
+        cmds = [  # create root account
+            f"etcdctl user add root:{root_pass}",
+            # create root role
+            "etcdctl role add root",
+            "etcdctl user grant-role root root",
+            # create slurmd user
+            f"etcdctl user add slurmd:{slurmd_pass}",
+            # create slurmd role
+            "etcdctl role add slurmd",
+            "etcdctl role grant-permission slurmd readwrite --prefix=true nodes/",
+            # grant slurmd user the slurmd role
+            "etcdctl user grant-role slurmd slurmd",
+            # create munge role
+            "etcdctl role add munge-readers",
+            "etcdctl role grant-permission munge-readers read --prefix=true munge/",
+            # enable auth
+            "etcdctl auth enable",
+        ]
 
         for cmd in cmds:
             cmd_without_password = cmd.split(":")[0]
@@ -252,9 +252,13 @@ class EtcdOps:
             if self._charm._stored.use_tls_ca:
                 cacert = self._tls_ca_crt_path.as_posix()
         logger.debug(f"## Created new etcd client using {protocol}, {tls_cert} and {cacert}")
-        client = Etcd3AuthClient(username="root", password=root_pass,
-                                 protocol=protocol, ca_cert=cacert,
-                                 cert_cert=tls_cert)
+        client = Etcd3AuthClient(
+            username="root",
+            password=root_pass,
+            protocol=protocol,
+            ca_cert=cacert,
+            cert_cert=tls_cert,
+        )
         client.authenticate()
         return client
 

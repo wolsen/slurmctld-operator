@@ -11,11 +11,11 @@ logger = logging.getLogger()
 
 
 class SlurmctldPeerAvailableEvent(EventBase):
-    """Emmited when a slurmctld peer is available."""
+    """Emitted when a slurmctld peer is available."""
 
 
 class SlurmctldPeerUnavailableEvent(EventBase):
-    """Emmited when the slurmctld peer departs the relation."""
+    """Emitted when the slurmctld peer departs the relation."""
 
 
 class SlurmctldPeerRelationEvents(ObjectEvents):
@@ -108,26 +108,18 @@ class SlurmctldPeer(Object):
                 # slurmctld_peers > 0 and try to promote a standby to a backup.
                 if backup_controller in slurmctld_peers:
                     slurmctld_peers_tmp.remove(backup_controller)
-                    app_relation_data["standby_controllers"] = json.dumps(
-                        slurmctld_peers_tmp
-                    )
+                    app_relation_data["standby_controllers"] = json.dumps(slurmctld_peers_tmp)
                 else:
                     if len(slurmctld_peers) > 0:
-                        app_relation_data[
-                            "backup_controller"
-                        ] = slurmctld_peers_tmp.pop()
-                        app_relation_data["standby_controllers"] = json.dumps(
-                            slurmctld_peers_tmp
-                        )
+                        app_relation_data["backup_controller"] = slurmctld_peers_tmp.pop()
+                        app_relation_data["standby_controllers"] = json.dumps(slurmctld_peers_tmp)
                     else:
                         app_relation_data["backup_controller"] = ""
                         app_relation_data["standby_controllers"] = json.dumps([])
             else:
                 if len(slurmctld_peers) > 0:
                     app_relation_data["backup_controller"] = slurmctld_peers_tmp.pop()
-                    app_relation_data["standby_controllers"] = json.dumps(
-                        slurmctld_peers_tmp
-                    )
+                    app_relation_data["standby_controllers"] = json.dumps(slurmctld_peers_tmp)
                 else:
                     app_relation_data["standby_controllers"] = json.dumps([])
 
@@ -137,9 +129,7 @@ class SlurmctldPeer(Object):
             # NOTE: We only care about the active and backup controllers.
             # Set the active controller info and check for and set the
             # backup controller information if one exists.
-            ctxt["active_controller_ingress_address"] = unit_relation_data[
-                "ingress-address"
-            ]
+            ctxt["active_controller_ingress_address"] = unit_relation_data["ingress-address"]
             ctxt["active_controller_hostname"] = self._charm.hostname
             ctxt["active_controller_port"] = str(self._charm.port)
 
@@ -151,9 +141,7 @@ class SlurmctldPeer(Object):
                 for unit in relation.units:
                     if unit.name == backup_controller:
                         unit_data = relation.data[unit]
-                        ctxt["backup_controller_ingress_address"] = unit_data[
-                            "ingress-address"
-                        ]
+                        ctxt["backup_controller_ingress_address"] = unit_data["ingress-address"]
                         ctxt["backup_controller_hostname"] = unit_data["hostname"]
                         ctxt["backup_controller_port"] = unit_data["port"]
             else:

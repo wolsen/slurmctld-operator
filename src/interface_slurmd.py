@@ -4,24 +4,21 @@ import copy
 import json
 import logging
 
-from ops.framework import (
-    EventBase, EventSource, Object, ObjectEvents, StoredState
-)
-
+from ops.framework import EventBase, EventSource, Object, ObjectEvents, StoredState
 
 logger = logging.getLogger()
 
 
 class SlurmdAvailableEvent(EventBase):
-    """Emmited when slurmd is available."""
+    """Emitted when slurmd is available."""
 
 
 class SlurmdBrokenEvent(EventBase):
-    """Emmited when the slurmd relation is broken."""
+    """Emitted when the slurmd relation is broken."""
 
 
 class SlurmdDepartedEvent(EventBase):
-    """Emmited when one slurmd departs."""
+    """Emitted when one slurmd departs."""
 
 
 class SlurmdInventoryEvents(ObjectEvents):
@@ -135,11 +132,11 @@ class Slurmd(Object):
 
     def get_slurmd_info(self) -> list:
         """Return the node info for units of applications on the relation."""
-        partitions = list()
+        partitions = []
         relations = self.framework.model.relations["slurmd"]
 
         for relation in relations:
-            inventory = list()
+            inventory = []
 
             app = relation.app
             units = relation.units
@@ -167,7 +164,6 @@ class Slurmd(Object):
 
     def set_nhc_params(self, params: str = ""):
         """Send NHC parameters to all slurmd."""
-
         # juju does not allow setting empty data/strings on the relation data,
         # so we set it to something that behaves like empty
         if not params or params == "":
@@ -226,9 +222,7 @@ def ensure_unique_partitions(partitions):
 
         inventory = partition_tmp["inventory"]
 
-        unique_inventory = list(
-            {node["node_name"]: node for node in inventory}.values()
-        )
+        unique_inventory = list({node["node_name"]: node for node in inventory}.values())
 
         partition_tmp["inventory"] = unique_inventory
         partitions.append(partition_tmp)

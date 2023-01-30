@@ -1,15 +1,27 @@
 #!/usr/bin/env python3
+# Copyright 2023 Canonical Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 """Test default charm events such as upgrade charm, install, etc."""
 
 import unittest
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock, patch
 
 import ops.testing
+from charm import SlurmctldCharm
 from ops.model import BlockedStatus
 from ops.testing import Harness
-
-from charm import SlurmctldCharm
 
 ops.testing.SIMULATE_CAN_CONNECT = True
 
@@ -139,7 +151,7 @@ class TestCharm(unittest.TestCase):
     @patch("pathlib.Path.read_text", return_value="v1.0.0")
     @patch("charm.SlurmctldCharm._configure_etcd")
     def test_on_upgrade(self, *_) -> None:
-        """Test that the on_upgrade method works,"""
+        """Test that the on_upgrade method works,."""
         self.harness.charm.on.upgrade_charm.emit()
         self.assertEqual(self.harness.get_workload_version(), "v1.0.0")
 
@@ -208,7 +220,7 @@ class TestCharm(unittest.TestCase):
         self.harness.charm._slurmrestd.on.slurmrestd_available.emit()
         self.assertEqual(
             self.harness.charm.unit.status,
-            BlockedStatus("Cannot generate slurm_config - defering event."),
+            BlockedStatus("Cannot generate slurm_config - deferring event."),
         )
 
     @patch("charm.SlurmctldCharm._check_status", return_value=True)
