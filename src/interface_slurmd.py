@@ -216,7 +216,6 @@ def ensure_unique_partitions(partitions):
 
     partitions_tmp = copy.deepcopy(partitions)
     for partition in partitions_tmp:
-
         partition_tmp = copy.deepcopy(partition)
         partitions.remove(partition)
 
