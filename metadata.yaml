@@ -1,33 +1,25 @@
 name: slurmctld
-
 summary: |
-    Slurmctld, the central management daemon of Slurm.
-
+  Slurmctld, the central management daemon of Slurm.
+description: |
+  This charm provides slurmctld, munged, and the bindings to other utilities
+  that make lifecycle operations a breeze.
+  
+  slurmctld is the central management daemon of SLURM. It monitors all other
+  SLURM daemons and resources, accepts work (jobs), and allocates resources
+  to those jobs.  Given the critical functionality of slurmctld, there may be
+  a backup server to assume these functions in the event that the primary
+  server fails.
+source: https://github.com/omnivector-solutions/slurmctld-operator
+issues: https://github.com/omnivector-solutions/slurmctld-operator/issues
 maintainers:
     - OmniVector Solutions <admin@omnivector.solutions>
-
-description: |
-    This charm provides slurmctld, munged, and the bindings to other utilities
-    that make lifecycle operations a breeze.
-
-    slurmctld is the central management daemon of SLURM. It monitors all other
-    SLURM daemons and resources, accepts work (jobs), and allocates resources
-    to those jobs.  Given the critical functionality of slurmctld, there may be
-    a backup server to assume these functions in the event that the primary
-    server fails.
-
-tags:
-    - slurm
-    - hpc
-
-series:
-    - focal
-    - centos7
+    - Jason C. Nucciarone <jason.nucciarone@canonical.com>
+    - David Gomez <david.gomez@canonical.com>
 
 peers:
   slurmctld-peer:
     interface: slurmctld-peer
-
 requires:
   slurmd:
     interface: slurmd
@@ -41,7 +33,6 @@ requires:
     interface: elasticsearch
   fluentbit:
     interface: fluentbit
-
 provides:
   prolog-epilog:
     interface: prolog-epilog
@@ -56,3 +47,6 @@ resources:
     description: >
       Official tarball containing the compiled etcd binaries. Retrieved from
       GitHub Releases.
+
+assumes:
+  - juju
