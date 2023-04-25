@@ -20,7 +20,7 @@ from unittest.mock import PropertyMock, patch
 
 import ops.testing
 from charm import SlurmctldCharm
-from ops.model import BlockedStatus
+from ops.model import BlockedStatus, MaintenanceStatus
 from ops.testing import Harness
 
 ops.testing.SIMULATE_CAN_CONNECT = True
@@ -161,10 +161,11 @@ class TestCharm(unittest.TestCase):
         self.assertEqual(self.harness.charm.etcd_slurmd_password, "test")
 
     @patch("slurm_ops_manager.SlurmManager.needs_reboot", PropertyMock(return_value=True))
+    @patch("subprocess.run")
     def test_check_status_needs_reboot(self, *_) -> None:
         """Test that the check_status method works when the unit needs to be rebooted."""
         res = self.harness.charm._check_status()
-        self.assertEqual(self.harness.charm.unit.status, BlockedStatus("Machine needs reboot"))
+        self.assertEqual(self.harness.charm.unit.status, MaintenanceStatus("Rebooting..."))
         self.assertEqual(
             res, False, msg="_check_status returned value True instead of expected value False."
         )

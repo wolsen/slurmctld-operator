@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
+# Copyright 2020 Omnivector Solutions, LLC
+# See LICENSE file for licensing details.
+
 """SlurmctldCharm."""
+
 import copy
 import logging
 import shlex
@@ -20,7 +24,7 @@ from interface_slurmrestd import Slurmrestd
 from ops.charm import CharmBase, LeaderElectedEvent
 from ops.framework import StoredState
 from ops.main import main
-from ops.model import ActiveStatus, BlockedStatus, ModelError, WaitingStatus
+from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, ModelError, WaitingStatus
 from slurm_ops_manager import SlurmManager
 
 logger = logging.getLogger()
@@ -333,7 +337,7 @@ class SlurmctldCharm(CharmBase):
         """Get the stored password for slurmd account for etcd."""
         return self._stored.etcd_slurmd_pass
 
-    def _check_status(self):
+    def _check_status(self):  # noqa C901
         """Check for all relations and set appropriate status.
 
         This charm needs these conditions to be satisfied in order to be ready:
@@ -348,6 +352,12 @@ class SlurmctldCharm(CharmBase):
 
         if self._slurm_manager.needs_reboot:
             self.unit.status = BlockedStatus("Machine needs reboot")
+            try:
+                self.unit.status = MaintenanceStatus("Rebooting...")
+                logger.debug("Scheduling machine reboot")
+                subprocess.run(["juju-reboot"], check=True)
+            except subprocess.CalledProcessError:
+                logger.error("Failed to schedule machine reboot")
             return False
 
         if not self._stored.slurm_installed:
