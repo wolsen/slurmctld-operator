@@ -16,11 +16,11 @@
 """Test default charm events such as upgrade charm, install, etc."""
 
 import unittest
-from unittest.mock import PropertyMock, patch
+from unittest.mock import patch
 
 import ops.testing
 from charm import SlurmctldCharm
-from ops.model import BlockedStatus, MaintenanceStatus
+from ops.model import BlockedStatus
 from ops.testing import Harness
 
 ops.testing.SIMULATE_CAN_CONNECT = True
