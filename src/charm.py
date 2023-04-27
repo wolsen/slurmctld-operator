@@ -24,7 +24,7 @@ from interface_slurmrestd import Slurmrestd
 from ops.charm import CharmBase, LeaderElectedEvent
 from ops.framework import StoredState
 from ops.main import main
-from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, ModelError, WaitingStatus
+from ops.model import ActiveStatus, BlockedStatus, ModelError, WaitingStatus
 from slurm_ops_manager import SlurmManager
 
 logger = logging.getLogger()
@@ -349,17 +349,6 @@ class SlurmctldCharm(CharmBase):
         # NOTE: slurmd and slurmrestd are not needed for slurmctld to work,
         #       only for the cluster to operate. But we need slurmd inventory
         #       to assemble slurm.conf
-
-        if self._slurm_manager.needs_reboot:
-            self.unit.status = BlockedStatus("Machine needs reboot")
-            try:
-                self.unit.status = MaintenanceStatus("Rebooting...")
-                logger.debug("Scheduling machine reboot")
-                subprocess.run(["juju-reboot"], check=True)
-            except subprocess.CalledProcessError:
-                logger.error("Failed to schedule machine reboot")
-            return False
-
         if not self._stored.slurm_installed:
             self.unit.status = BlockedStatus("Error installing slurmctld")
             return False

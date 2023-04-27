@@ -160,18 +160,7 @@ class TestCharm(unittest.TestCase):
         self.harness.charm._stored.etcd_slurmd_pass = "test"
         self.assertEqual(self.harness.charm.etcd_slurmd_password, "test")
 
-    @patch("slurm_ops_manager.SlurmManager.needs_reboot", PropertyMock(return_value=True))
-    @patch("subprocess.run")
-    def test_check_status_needs_reboot(self, *_) -> None:
-        """Test that the check_status method works when the unit needs to be rebooted."""
-        res = self.harness.charm._check_status()
-        self.assertEqual(self.harness.charm.unit.status, MaintenanceStatus("Rebooting..."))
-        self.assertEqual(
-            res, False, msg="_check_status returned value True instead of expected value False."
-        )
-
-    @patch("slurm_ops_manager.SlurmManager.needs_reboot", PropertyMock(return_value=False))
-    def test_check_status_slurm_not_installed(self, *_) -> None:
+    def test_check_status_slurm_not_installed(self) -> None:
         """Test that the check_status method works when slurm is not installed."""
         self.harness.charm._stored.slurm_installed = False
         res = self.harness.charm._check_status()
@@ -182,9 +171,8 @@ class TestCharm(unittest.TestCase):
             res, False, msg="_check_status returned value True instead of expected value False."
         )
 
-    @patch("slurm_ops_manager.SlurmManager.needs_reboot", PropertyMock(return_value=False))
     @patch("slurm_ops_manager.SlurmManager.check_munged", return_value=False)
-    def test_check_status_bad_munge(self, *_) -> None:
+    def test_check_status_bad_munge(self, _) -> None:
         """Test that the check_status method works when munge encounters an error."""
         setattr(self.harness.charm._stored, "slurm_installed", True)  # Patch StoredState
         res = self.harness.charm._check_status()
