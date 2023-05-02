@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
+# Copyright 2020 Omnivector Solutions, LLC
+# See LICENSE file for licensing details.
+
 """SlurmctldCharm."""
+
 import copy
 import logging
 import shlex
@@ -333,7 +337,7 @@ class SlurmctldCharm(CharmBase):
         """Get the stored password for slurmd account for etcd."""
         return self._stored.etcd_slurmd_pass
 
-    def _check_status(self):
+    def _check_status(self):  # noqa C901
         """Check for all relations and set appropriate status.
 
         This charm needs these conditions to be satisfied in order to be ready:
@@ -345,11 +349,6 @@ class SlurmctldCharm(CharmBase):
         # NOTE: slurmd and slurmrestd are not needed for slurmctld to work,
         #       only for the cluster to operate. But we need slurmd inventory
         #       to assemble slurm.conf
-
-        if self._slurm_manager.needs_reboot:
-            self.unit.status = BlockedStatus("Machine needs reboot")
-            return False
-
         if not self._stored.slurm_installed:
             self.unit.status = BlockedStatus("Error installing slurmctld")
             return False
