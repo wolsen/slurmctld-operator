@@ -23,19 +23,8 @@ from urllib import request
 
 logger = logging.getLogger(__name__)
 
-ETCD = "etcd-v3.5.0-linux-amd64.tar.gz"
-ETCD_URL = f"https://github.com/etcd-io/etcd/releases/download/v3.5.0/{ETCD}"
 NHC = "lbnl-nhc-1.4.3.tar.gz"
 NHC_URL = f"https://github.com/mej/nhc/releases/download/1.4.3/{NHC}"
-
-
-def get_slurmctld_res() -> Dict[str, pathlib.Path]:
-    """Get slurmctld resources needed for charm deployment."""
-    if not (etcd := pathlib.Path(ETCD)).exists():
-        logger.info(f"Getting resource {ETCD} from {ETCD_URL}")
-        request.urlretrieve(ETCD_URL, etcd)
-
-    return {"etcd": etcd}
 
 
 def get_slurmd_res() -> Dict[str, pathlib.Path]:
